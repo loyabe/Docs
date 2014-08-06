@@ -34,7 +34,7 @@
 	}
 
 是否您以前也是这样用的呢。
-###没有问题？
+###是否真的没有问题？
    Eclipse 工具有这样的警告提示
 警告:
 ![](https://raw.githubusercontent.com/loyabe/Docs/master/%E5%86%85%E5%AD%98%E6%B3%84%E9%9C%B2/res/dvoidleak_handler_1.png)
