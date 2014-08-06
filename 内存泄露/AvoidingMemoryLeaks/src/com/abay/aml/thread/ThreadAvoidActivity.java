@@ -2,8 +2,7 @@ package com.abay.aml.thread;
 
 import java.lang.ref.WeakReference;
 
-import com.abay.avoidingmemoryleaks.R;
-
+import com.abay.aml.R;
 import android.app.Activity;
 import android.os.Bundle;
 
