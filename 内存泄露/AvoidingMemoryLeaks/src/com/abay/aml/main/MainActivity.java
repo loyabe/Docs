@@ -4,6 +4,7 @@ import com.abay.aml.R;
 import com.abay.aml.handler.HandlerActivity2;
 import com.abay.aml.handler.HandlerActivity1;
 import com.abay.aml.handler.HandlerActivity3;
+import com.abay.aml.resource.TestListActivity;
 import com.abay.aml.thread.ThreadActivity;
 import com.abay.aml.thread.ThreadAvoidActivity;
 
@@ -29,6 +30,7 @@ public class MainActivity extends Activity implements OnClickListener{
 	private Button mHandler2;
 	private Button mThread;
 	private Button mThreadAvoidLeak;
+	private Button mTestListView;
 	
 	
     @Override
@@ -40,11 +42,13 @@ public class MainActivity extends Activity implements OnClickListener{
         mHandler2 = (Button)findViewById(R.id.handler2);
         mThread = (Button)findViewById(R.id.ThreadLeak);
         mThreadAvoidLeak = (Button)findViewById(R.id.ThreadAvoidLeak);
+        mTestListView = (Button)findViewById(R.id.testlistview);
         mHandler.setOnClickListener(this);
         mHandler1.setOnClickListener(this); 
         mHandler2.setOnClickListener(this);
         mThread.setOnClickListener(this);
         mThreadAvoidLeak.setOnClickListener(this);
+        mTestListView.setOnClickListener(this);
     }
 
 
@@ -68,8 +72,11 @@ public class MainActivity extends Activity implements OnClickListener{
 		case R.id.ThreadAvoidLeak:
 			clazz = ThreadAvoidActivity.class;
 			break;
+		case R.id.testlistview:
+			clazz = TestListActivity.class;
+			break;	
+			
 		}
-		
 		
 		Intent i = new Intent(MainActivity.this, clazz);
 		startActivity(i);

@@ -1,4 +1,7 @@
 #Android App 内存泄露之资源释放
+ 
+ 
+     
 ####1.引用资源没有释放
 代码如下：
 		
@@ -16,7 +19,7 @@
 	这种Android的内存泄露比纯Java的内存泄露还要严重，
 	因为其他一些Android程序可能引用我们的Anroid程序的对象（比如注册机制）。
 	即使我们的Android程序已经结束了，但是别的引用程序仍然还有对我们的Android程序的某个对象的引用，泄露的内存依然不能被垃圾回收。
-    
+    还是我们的对象周期不一致引起的。
 #
 
 	例如：BroadcastReceiver对象注册
@@ -29,8 +32,7 @@
 ######1.2集合中对象没清理造成的内存泄露
 	我们通常把一些对象的引用加入到了集合中，当我们不需要该对象时，并没有把它的引用从集合中清理掉，这样这个集合就会越来越大。
 	如果这个集合是static的话，那情况就更严重了
-    List<Object> 集合类使用完周期要clear掉
-   
+    在add 情况也要记得 remove 
 
 
 
@@ -71,7 +73,7 @@
 	    }
 	}　
 
-####3.一些不良代码成内存压力
+####3.一些不良代码造成的内存压力
 
     有些代码并不造成内存泄露，但是它们，	或是对没使用的内存没进行有效及时的释放，
     或是没有有效的利用已有的对象而是频繁的申请新内存，
@@ -90,20 +92,59 @@
 	但是测试结果显示它并没能立即释放内存。但是我它应该还是能大大的加速Bitmap的主要内存的释放。
 ######3.2，构造Adapter时，没有使用缓存的 convertView
      
-     以构造ListView的BaseAdapter为例，在BaseAdapter中提共了方法：
-	        public View getView(int position, View convertView, ViewGroup parent)    
-		    来向ListView提供每一个item所需要的view对象。
-			初始时ListView会从BaseAdapter中根据当前的屏幕布局实例化一定数量的view对象，
-			同时ListView会将这些view对象缓存起来。当向上滚动ListView时，
+    以构造ListView的BaseAdapter为例，在BaseAdapter中提共了方法：
+	public View getView(int position, View convertView, ViewGroup parent)    
+	来向ListView提供每一个item所需要的view对象。
+	初始时ListView会从BaseAdapter中根据当前的屏幕布局实例化一定数量的view对象，
+	同时ListView会将这些view对象缓存起来。当向上滚动ListView时，
 	原先位于最上面的list item的view对象会被回收，然后被用来构造新出现的最下面的list item。
 	这个构造过程就是由getView()方法完成的，
-	getView()的第二个形参 View convertView就是被缓存起来的list item的view对象(初始化时缓存中没有view对象则convertView是null)。  
-       由此可以看出，如果我们不去使用convertView，而是每次都在getView()中重新实例化一个View对象的话，即浪费时间，也造成内存垃圾，给垃圾回收增加压力，如果垃圾回收来不及的话，虚拟机将不得不给该应用进程分配更多的内存，造成不必要的内存开支。ListView回收list item的view对象的过程可以查看:    
-     android.widget.AbsListView.java --> 
-	void addScrapView(View scrap) 方法。 
+	getView()的第二个形参 View convertView就是被缓存起来的list item的view对象
+	(初始化时缓存中没有view对象则convertView是null)。
+ 如下图： 
+ ![](https://github.com/loyabe/Docs/raw/6ebffb6505ad1b2009cdcb888498230296e509da/%E5%86%85%E5%AD%98%E6%B3%84%E9%9C%B2/res/AbsListView%E5%AF%B9%E8%B1%A1%E6%B1%A0.jpg?raw=true)
  
+     由上图可以看出，如果我们不去使用convertView，而是每次都在getView()中重新实例化一个View对象的话，即浪费时间，也造成内存垃圾，给垃圾回收增加压力，如果垃圾回收来不及的话，虚拟机将不得不给该应用进程分配更多的内存，造成不必要的内存开支。ListView回收list item的view对象的过程可以查看:    
+     android.widget.AbsListView.java --> 
+	 void addScrapView(View scrap) 方法。 
+#
 
-	java代码：public View getView(int position, View convertView, ViewGroup parent) {  View view = new Xxx(...); return view; } 复制代码         修正示例代码：  java代码：  public View getView(int position, View convertView, ViewGroup parent) {  View view = null;  if (convertView != null) { view = convertView;  populate(view, getItem(position)); } else {  view = new Xxx(...); }  return view; }
+
+java代码：
+
+
+    @Override
+    public View getView(int position, View convertView, ViewGroup parent) {
+        Log.d(TAG, "Position:" + position + "---"
+                + String.valueOf(System.currentTimeMillis()));
+        ViewHolder holder;
+        if (convertView == null) {
+            final LayoutInflater inflater = (LayoutInflater) mContext
+                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            convertView = inflater.inflate(R.layout.list_item_icon_text, null);
+            holder = new ViewHolder();
+            holder.icon = (ImageView) convertView.findViewById(R.id.icon);
+            holder.text = (TextView) convertView.findViewById(R.id.text);
+            convertView.setTag(holder);
+        } else {
+            holder = (ViewHolder) convertView.getTag();
+        }
+        holder.icon.setImageDrawable(mDefaultDrawable);
+        holder.text.setText(mData[position]);
+        return convertView;
+    }
+
+    static class ViewHolder {
+        ImageView icon;
+        TextView text;
+    }
+
+1.复用convertView ， convertView在ListView有RecycleBin的对象池维护。
+2.ViewHolder出现减少findViewById 的调用
+
+
+[https://github.com/loyabe/Docs/tree/master/%E5%86%85%E5%AD%98%E6%B3%84%E9%9C%B2](https://github.com/loyabe/Docs/tree/master/%E5%86%85%E5%AD%98%E6%B3%84%E9%9C%B2 "代码源地址")
+
 
 敬请期待下一章(*^__^*) 嘻嘻……
 	

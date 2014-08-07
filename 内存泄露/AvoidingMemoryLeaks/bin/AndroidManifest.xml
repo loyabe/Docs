@@ -34,6 +34,9 @@
         <activity
             android:name="com.abay.aml.thread.ThreadAvoidActivity"
             android:label="@string/app_name" />
+        <activity
+            android:name="com.abay.aml.resource.TestListActivity"
+            android:label="@string/app_name" />
     </application>
 
 </manifest>

@@ -286,6 +286,8 @@ int id showTitle 0x7f050006
 int id split_action_bar 0x7f05001e
 int id submit_area 0x7f05003a
 int id tabMode 0x7f050002
+int id testlistview 0x7f050042
+int id text 0x7f050043
 int id title 0x7f05002c
 int id top_action_bar 0x7f050020
 int id up 0x7f050021
@@ -318,7 +320,9 @@ int layout abc_search_view 0x7f030016
 int layout abc_simple_decor 0x7f030017
 int layout activity_list 0x7f030018
 int layout activity_main 0x7f030019
-int layout support_simple_spinner_dropdown_item 0x7f03001a
+int layout activity_res_list 0x7f03001a
+int layout list_item_icon_text 0x7f03001b
+int layout support_simple_spinner_dropdown_item 0x7f03001c
 int string abc_action_bar_home_description 0x7f0a0001
 int string abc_action_bar_up_description 0x7f0a0002
 int string abc_action_menu_overflow_description 0x7f0a0003
