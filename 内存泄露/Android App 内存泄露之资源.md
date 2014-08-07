@@ -1,7 +1,9 @@
-#Android App 内存泄露之资源释放
+#Android App 内存泄露之资源
  
- 
-     
+ 资源内存泄露主要是资源申请未释放，还有资源没有重复使用。
+
+-  第一种解决这部分问题的关键在于申请资源后能保证能释放资源。
+-  第二种利用复用机制优化，如池的概念 。   
 ####1.引用资源没有释放
 代码如下：
 		
@@ -11,9 +13,14 @@
 	    }   
 	}
 	 
-	 mContentQueryMap.addObserver(new SettingsObserver());
+	 ContentQueryMap.getInstance().addObserver(new SettingsObserver());
 	
    你对这段代码正常吗
+   
+   答案是否定
+
+   	存在的问题是没有办法注销观察者（SettingsObserver），这样带来的问题是没有办法释放该观察者。
+   	那么这个对象将伴随整个单例生命周期，无形中就泄露一个SettingsObserver的内存。
 
 ######1.1注册未取消造成的内存泄露 
 	这种Android的内存泄露比纯Java的内存泄露还要严重，
@@ -104,13 +111,15 @@
  如下图： 
  ![](https://github.com/loyabe/Docs/raw/6ebffb6505ad1b2009cdcb888498230296e509da/%E5%86%85%E5%AD%98%E6%B3%84%E9%9C%B2/res/AbsListView%E5%AF%B9%E8%B1%A1%E6%B1%A0.jpg?raw=true)
  
-     由上图可以看出，如果我们不去使用convertView，而是每次都在getView()中重新实例化一个View对象的话，即浪费时间，也造成内存垃圾，给垃圾回收增加压力，如果垃圾回收来不及的话，虚拟机将不得不给该应用进程分配更多的内存，造成不必要的内存开支。ListView回收list item的view对象的过程可以查看:    
-     android.widget.AbsListView.java --> 
-	 void addScrapView(View scrap) 方法。 
+     由上图可以看出，如果我们不去使用convertView，而是每次都在getView()中重新实例化一个View对象的话，
+	 即浪费时间，也造成内存垃圾，给垃圾回收增加压力，
+	 如果垃圾回收来不及的话，虚拟机将不得不给该应用进程分配更多的内存，造成不必要的内存开支。
+	 ListView回收list item的view对象的过程可以查看:    
+     android.widget.AbsListView.java --> obtainView 方法。 
 #
+      
 
-
-java代码：
+在使用过程中java代码如下：
 
 
     @Override
@@ -139,10 +148,12 @@ java代码：
         TextView text;
     }
 
-1.复用convertView ， convertView在ListView有RecycleBin的对象池维护。
-2.ViewHolder出现减少findViewById 的调用
+####优化点
+- 1.复用convertView ， convertView在ListView有RecycleBin的对象池维护。
+- 2.ViewHolder出现减少findViewById 的调用
 
 
+代码位置：
 [https://github.com/loyabe/Docs/tree/master/%E5%86%85%E5%AD%98%E6%B3%84%E9%9C%B2](https://github.com/loyabe/Docs/tree/master/%E5%86%85%E5%AD%98%E6%B3%84%E9%9C%B2 "代码源地址")
 
 
