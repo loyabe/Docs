@@ -19,7 +19,7 @@
    
    答案是否定
 
-   	存在的问题是没有办法注销观察者（SettingsObserver），这样带来的问题是没有办法释放该观察者。
+   	存在的问题是没有办法注销观察者对象（SettingsObserver），这样带来的问题是没有办法释放该观察者。
    	那么这个对象将伴随整个单例生命周期，无形中就泄露一个SettingsObserver的内存。
 
 ######1.1注册未取消造成的内存泄露 
@@ -92,11 +92,12 @@
     频繁的申请对象释放对象。可以考虑对象池。 例如：AbsListView 中RecycleBin 类是view对象池
     频繁的链接资源和释放资源。可以考虑链接资源池。
 
-
 ######3.1，Bitmap没调用recycle()      
     Bitmap对象在不使用时,我们应该先调用recycle()释放内存，然后才它设置为null.
 	虽然recycle()从源码上看，调用它应该能立即释放Bitmap的主要内存，
 	但是测试结果显示它并没能立即释放内存。但是我它应该还是能大大的加速Bitmap的主要内存的释放。
+   
+   
 ######3.2，构造Adapter时，没有使用缓存的 convertView
      
     以构造ListView的BaseAdapter为例，在BaseAdapter中提共了方法：
