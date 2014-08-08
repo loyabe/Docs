@@ -68,7 +68,6 @@ public class GoodAdapter extends BaseAdapter {
 
     static class ViewHolder {
         ImageView icon;
-
         TextView text;
     }
 
